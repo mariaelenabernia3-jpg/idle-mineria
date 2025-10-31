@@ -10,11 +10,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="main-container">
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-overlay">
+        <div id="login-box">
+            <h1>Idle Empire: Miner & Trader</h1>
+            <p>Inicia sesión para guardar tu progreso en la nube y jugar desde cualquier dispositivo.</p>
+            <button id="google-login-btn">Iniciar Sesión con Google</button>
+        </div>
+    </div>
+
+    <div id="main-container" class="hidden">
         <header id="top-bar">
             <div class="stat-box">Dinero: <b id="money-display">$0</b></div>
             <div class="stat-box">Ubicación: <b id="location-display">La Mina</b></div>
             <div class="stat-box">Mercado en: <b id="market-timer-display">10:00</b></div>
+            <div class="stat-box" id="user-info" style="display: none;">
+                Usuario: <b id="user-display"></b>
+                <button id="logout-btn" style="padding: 5px 10px; font-size: 0.8em; margin-left: 10px;">Salir</button>
+            </div>
         </header>
 
         <main id="screen-container">

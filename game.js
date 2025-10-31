@@ -1,16 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- CONFIGURACIÓN DE FIREBASE (CON TUS CLAVES YA INTEGRADAS) ---
+    // --- CONFIGURACIÓN DE FIREBASE ---
     const firebaseConfig = {
-      apiKey: "AIzaSyDZXqVF1FjNIXriEcCKzO5jpDW1lNJC6yI",
+      apiKey: "AIzaSyDZXqVF1FjNIXriEcCKzO5jpDW1lNJC6yI", // Asegúrate de que esta clave sea correcta
       authDomain: "idle-empire-online.firebaseapp.com",
       projectId: "idle-empire-online",
-      storageBucket: "idle-empire-online.appspot.com", // Corregido: suele terminar en .appspot.com
+      storageBucket: "idle-empire-online.appspot.com",
       messagingSenderId: "89028523115",
       appId: "1:89028523115:web:be7023d31fc7ab5c666d2e",
       measurementId: "G-D1LRRNYQRY"
     };
 
-    // Inicializar Firebase (usando la sintaxis compatible con nuestros scripts)
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -37,16 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'C002', title: 'Forja Básica', requirements: { Cobre: 150, Hierro: 50, Herramientas: 5 }, reward: { money: 3000 } }
         ],
         MARKET_REFRESH_INTERVAL: 600,
-        SAVE_INTERVAL: 5000
+        SAVE_INTERVAL: 5000 // 5 segundos
     };
 
-    const SAVE_KEY = 'idleEmpireSaveData';
     let state = {};
     const DOM = {};
     const gameLogic = {};
     const ui = {};
+    let saveInterval;
+    let tickInterval;
 
     function init() {
+        // Asignación de elementos del DOM
         Object.assign(DOM, {
             moneyDisplay: document.getElementById('money-display'), locationDisplay: document.getElementById('location-display'),
             marketTimerDisplay: document.getElementById('market-timer-display'),
@@ -55,18 +56,50 @@ document.addEventListener('DOMContentLoaded', () => {
             mineScreen: { inventory: document.getElementById('inventory-display'), prodUpgrades: document.getElementById('production-upgrades-container'), mineUnlocks: document.getElementById('unlock-mines-container'), contracts: document.getElementById('contracts-container') },
             mapScreen: { cities: document.getElementById('cities-container'), leaderboard: document.getElementById('leaderboard-container') },
             cityScreen: { name: document.getElementById('city-name'), market: document.getElementById('market-display'), goods: document.getElementById('goods-for-sale-display') },
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            loginOverlay: document.getElementById('login-overlay'),
+            mainContainer: document.getElementById('main-container'),
+            googleLoginBtn: document.getElementById('google-login-btn'),
+            userInfo: document.getElementById('user-info'),
+            userDisplay: document.getElementById('user-display'),
+            logoutBtn: document.getElementById('logout-btn')
         });
 
-        gameLogic.signInAnonymouslyIfNeeded(() => {
-            gameLogic.load();
-            DOM.navButtons.mine.onclick = () => ui.showScreen('mine');
-            DOM.navButtons.map.onclick = () => ui.showScreen('map');
-            if (!state.marketPrices || Object.keys(state.marketPrices).length === 0) { gameLogic.updateMarketPrices(false); }
-            setInterval(tick, 1000);
-            setInterval(gameLogic.save, CONFIG.SAVE_INTERVAL);
-            ui.showScreen(state.currentScreen || 'mine');
-        });
+        // Lógica de autenticación
+        gameLogic.handleAuthStateChanges();
+
+        // Asignación de eventos de botones
+        DOM.googleLoginBtn.onclick = gameLogic.signInWithGoogle;
+        DOM.logoutBtn.onclick = game.logic.signOut;
+        DOM.navButtons.mine.onclick = () => ui.showScreen('mine');
+        DOM.navButtons.map.onclick = () => ui.showScreen('map');
+    }
+
+    function startGame(loadedState) {
+        state = loadedState;
+        DOM.loginOverlay.classList.add('hidden');
+        DOM.mainContainer.classList.remove('hidden');
+        DOM.userInfo.style.display = 'flex';
+        DOM.userDisplay.innerText = auth.currentUser.displayName || auth.currentUser.email.split('@')[0];
+
+        if (!state.marketPrices || Object.keys(state.marketPrices).length === 0) { gameLogic.updateMarketPrices(false); }
+        
+        // Inicia los bucles del juego
+        tickInterval = setInterval(tick, 1000);
+        saveInterval = setInterval(gameLogic.save, CONFIG.SAVE_INTERVAL);
+        
+        ui.showScreen(state.currentScreen || 'mine');
+        ui.render();
+    }
+
+    function stopGame() {
+        // Detiene los bucles y resetea la UI
+        if (tickInterval) clearInterval(tickInterval);
+        if (saveInterval) clearInterval(saveInterval);
+        state = {};
+        DOM.loginOverlay.classList.remove('hidden');
+        DOM.mainContainer.classList.add('hidden');
+        DOM.userInfo.style.display = 'none';
     }
 
     function tick() {
@@ -78,36 +111,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         ui.render();
     }
-
+    
+    // --- LÓGICA DEL JUEGO ---
     Object.assign(gameLogic, {
-        signInAnonymouslyIfNeeded: (callback) => {
-            if (auth.currentUser) return callback();
-            auth.signInAnonymously().then(() => callback()).catch(e => console.error("Auth Error:", e));
+        handleAuthStateChanges: () => {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    gameLogic.load();
+                } else {
+                    stopGame();
+                }
+            });
+        },
+        signInWithGoogle: () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(e => console.error("Error al iniciar sesión con Google:", e));
+        },
+        signOut: () => {
+            gameLogic.save().then(() => {
+                auth.signOut();
+            });
         },
         getDefaultState: () => ({
-            money: 0, inventory: Object.fromEntries([...Object.keys(CONFIG.MATERIALS), ...Object.keys(CONFIG.TRADE_GOODS)].map(k => [k, 0])),
+            money: 0,
+            inventory: Object.fromEntries([...Object.keys(CONFIG.MATERIALS), ...Object.keys(CONFIG.TRADE_GOODS)].map(k => [k, 0])),
             productionLevels: Object.fromEntries(Object.keys(CONFIG.MATERIALS).map(k => [k, 1])),
-            unlockedMaterials: ['Piedra'], unlockedCities: ['PuebloRoca'], completedContracts: [],
-            currentScreen: 'mine', marketPrices: {}, marketRefreshTimer: CONFIG.MARKET_REFRESH_INTERVAL
+            unlockedMaterials: ['Piedra'],
+            unlockedCities: ['PuebloRoca'],
+            completedContracts: [],
+            currentScreen: 'mine',
+            marketPrices: {},
+            marketRefreshTimer: CONFIG.MARKET_REFRESH_INTERVAL
         }),
         save: () => {
-            localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-            gameLogic.updateLeaderboard();
+            if (!auth.currentUser) return Promise.resolve();
+            return db.collection('players').doc(auth.currentUser.uid).set(state, { merge: true })
+                .then(gameLogic.updateLeaderboard)
+                .catch(e => console.error("Error guardando en Firestore:", e));
         },
         load: () => {
-            state = gameLogic.getDefaultState();
-            const savedData = localStorage.getItem(SAVE_KEY);
-            if (savedData) {
-                try { Object.assign(state, JSON.parse(savedData)); } 
-                catch (e) { console.error("Error loading save:", e); }
-            }
+            if (!auth.currentUser) return;
+            const docRef = db.collection('players').doc(auth.currentUser.uid);
+            docRef.get().then(doc => {
+                if (doc.exists) {
+                    const loadedData = doc.data();
+                    const finalState = { ...gameLogic.getDefaultState(), ...loadedData };
+                    startGame(finalState);
+                } else {
+                    const newState = gameLogic.getDefaultState();
+                    startGame(newState);
+                    gameLogic.save(); // Guarda el estado inicial para el nuevo jugador
+                }
+            }).catch(e => {
+                console.error("Error al cargar datos de Firestore:", e);
+                startGame(gameLogic.getDefaultState());
+            });
         },
         updateLeaderboard: () => {
             if (!auth.currentUser) return;
             db.collection('leaderboard').doc(auth.currentUser.uid).set({
                 money: state.money,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(e => console.error("Firestore Error:", e));
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                playerName: auth.currentUser.displayName || 'Anónimo'
+            }).catch(e => console.error("Error actualizando leaderboard:", e));
         },
         calculateProduction: (matName) => {
             if (!state.unlockedMaterials.includes(matName)) return 0;
@@ -189,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    // --- LÓGICA DE LA INTERFAZ DE USUARIO (UI) ---
     Object.assign(ui, {
         showScreen: (screenId) => {
             state.currentScreen = screenId;
@@ -204,6 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (screenId === 'map') ui.renderLeaderboard();
         },
         render: () => {
+            if (!state || !state.money) return; // Previene errores si el estado aún no se ha cargado
             DOM.moneyDisplay.innerText = `$${Math.floor(state.money).toLocaleString()}`;
             const locName = CONFIG.CITIES[state.currentScreen]?.name || (state.currentScreen === 'mine' ? 'La Mina' : 'Mapa');
             DOM.locationDisplay.innerText = locName;
@@ -214,6 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.currentScreen === 'map') ui.renderMapScreen();
             if (CONFIG.CITIES[state.currentScreen]) ui.renderCityScreen();
         },
+        // Todas las demás funciones de renderizado (renderMineScreen, renderContractsBoard, etc.)
+        // son exactamente iguales que antes. Las incluyo por completitud.
         renderMineScreen: () => {
             DOM.mineScreen.inventory.innerHTML = '';
             [...Object.keys(CONFIG.MATERIALS),...Object.keys(CONFIG.TRADE_GOODS)].forEach(iName=>{const i=CONFIG.MATERIALS[iName]||CONFIG.TRADE_GOODS[iName];const p=gameLogic.calculateProduction(iName)||0;const pTxt=p>0?` (+${p.toFixed(2)}/s)`:'';if(state.inventory[iName]>0||state.unlockedMaterials.includes(iName)){DOM.mineScreen.inventory.innerHTML+=`<div class="resource-line"><span>${i.name}</span><span><b>${Math.floor(state.inventory[iName]).toLocaleString()}</b>${pTxt}</span></div>`}});
@@ -287,8 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 let rank = 1;
                 snap.forEach(doc => {
                     const data = doc.data(); const isPlayer = auth.currentUser && doc.id === auth.currentUser.uid;
+                    const playerName = isPlayer ? 'Tú' : (data.playerName || 'Anónimo');
                     const el = document.createElement('div'); el.className = 'leaderboard-entry';
-                    el.innerHTML = `<span class="leaderboard-rank">#${rank}</span><span>${isPlayer ? 'Tú' : 'Anónimo'}</span><span class="leaderboard-money">$${Math.floor(data.money).toLocaleString()}</span>`;
+                    el.innerHTML = `<span class="leaderboard-rank">#${rank}</span><span>${playerName}</span><span class="leaderboard-money">$${Math.floor(data.money).toLocaleString()}</span>`;
                     DOM.mapScreen.leaderboard.appendChild(el); rank++;
                 });
             }).catch(e => { console.error(e); DOM.mapScreen.leaderboard.innerHTML = 'Error al cargar.'; });
@@ -301,8 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCityMarket: () => {
             DOM.cityScreen.market.innerHTML = '';
             for (const mName in CONFIG.MATERIALS) {
-                const am = Math.floor(state.inventory[mName]);
-                if (am > 0) {
+                if (state.inventory[mName] && Math.floor(state.inventory[mName]) > 0) {
+                    const am = Math.floor(state.inventory[mName]);
                     const p = state.marketPrices[state.currentScreen][mName];
                     const el = document.createElement('div'); el.className = 'resource-line';
                     el.innerHTML = `<span>${mName} (${am.toLocaleString()}) - <b>$${p.toFixed(2)}</b>/u</span>`;
@@ -334,5 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Iniciar el juego
     init();
 });
