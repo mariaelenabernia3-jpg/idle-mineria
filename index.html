@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Empire: Miner & Trader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="main-container">
+        <header id="top-bar">
+            <div class="stat-box">Dinero: <b id="money-display">$0</b></div>
+            <div class="stat-box">Ubicación: <b id="location-display">La Mina</b></div>
+            <div class="stat-box">Mercado en: <b id="market-timer-display">10:00</b></div>
+        </header>
+
+        <main id="screen-container">
+            <!-- PANTALLA DE LA MINA -->
+            <div id="mine-screen" class="screen">
+                <div class="panel">
+                    <h3>Inventario</h3>
+                    <div id="inventory-display" class="resource-list"></div>
+                </div>
+                <div class="panel">
+                    <h3>Tablón de Contratos</h3>
+                    <div id="contracts-container"></div>
+                </div>
+                <div class="panel">
+                    <h3>Mejoras de Producción</h3>
+                    <div id="production-upgrades-container"></div>
+                </div>
+                 <div class="panel">
+                    <h3>Desbloquear Nuevas Minas</h3>
+                    <div id="unlock-mines-container"></div>
+                </div>
+            </div>
+
+            <!-- PANTALLA DEL MAPA DEL MUNDO -->
+            <div id="map-screen" class="screen hidden">
+                <div id="map-layout">
+                    <div class="map-panel">
+                        <h2>Mapa del Mundo</h2>
+                        <p>Desbloquea y viaja a nuevas ciudades.</p>
+                        <div id="cities-container"></div>
+                    </div>
+                    <div class="map-panel">
+                        <h2>Clasificación Global</h2>
+                        <p>Top 10 Mineros</p>
+                        <div id="leaderboard-container">Cargando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA DE LA CIUDAD -->
+            <div id="city-screen" class="screen hidden">
+                <h2 id="city-name"></h2>
+                <div id="city-panels-container">
+                    <div class="panel">
+                        <h3>Vender Minerales</h3>
+                        <div id="market-display" class="resource-list"></div>
+                    </div>
+                    <div class="panel">
+                        <h3>Comprar Mercancías</h3>
+                        <div id="goods-for-sale-display" class="resource-list"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer id="nav-bar">
+            <button id="nav-mine-btn" class="active">Mina</button>
+            <button id="nav-map-btn">Mapa</button>
+        </footer>
+    </div>
+    
+    <div id="notification" class="hidden"></div>
+    
+    <!-- Scripts de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+    
+    <script src="game.js"></script>
+</body>
+</html>
