@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZM Studios - Menú Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="menu.style.css">
+</head>
+<body>
+    <div id="vignette-overlay"></div>
+    <div id="scanlines-overlay"></div>
+    <video autoplay muted loop id="video-bg"><source src="https://assets.mixkit.co/videos/preview/mixkit-flying-through-a-glowing-blue-nebula-23426-large.mp4" type="video/mp4"></video>
+    <div id="user-panel">
+        <div id="user-info" class="hidden"></div>
+        <button id="auth-icon-btn" class="auth-icon" title="Iniciar Sesión / Perfil"></button>
+    </div>
+    <div id="menu-container">
+        <div class="title-container">
+            <h1 class="game-title" data-text="PROYECTO GÉNESIS">PROYECTO GÉNESIS</h1>
+            <h2 class="game-subtitle">Inicializando Sistema...</h2>
+        </div>
+        <nav class="main-nav">
+            <a href="#" id="start-game-btn" class="nav-button"><svg class="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><span>Iniciar Partida</span></a>
+            <a href="#" id="leaderboard-btn" class="nav-button"><svg class="icon" viewBox="0 0 24 24"><path d="M16 11V3H8v8l-4 4v2h16v-2l-4-4zm-2-6h-4v6l2 2 2-2V5zM6 21h12v-2H6v2z"></path></svg><span>Clasificación</span></a>
+            <a href="#" id="options-btn" class="nav-button"><svg class="icon" viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61-.25-1.17-.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12-.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59-1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg><span>Opciones</span></a>
+            <a href="#" id="credits-btn" class="nav-button"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path></svg><span>Créditos</span></a>
+        </nav>
+    </div>
+    <div class="version-tag">v0.4.0-alpha</div>
+    <div id="auth-modal" class="modal-overlay hidden"><div class="modal-content"><button class="close-btn">&times;</button><div id="login-form"><h2>Iniciar Sesión</h2><p id="login-error-message" class="error-message"></p><input type="email" id="login-email" placeholder="Correo electrónico" required><input type="password" id="login-password" placeholder="Contraseña" required><button id="login-btn">Entrar</button><p class="auth-switch">¿No tienes cuenta? <a href="#" id="show-register">Regístrate</a></p></div><div id="register-form" class="hidden"><h2>Crear Cuenta</h2><p id="register-error-message" class="error-message"></p><input type="text" id="register-username" placeholder="Nombre de usuario" required><input type="email" id="register-email" placeholder="Correo electrónico" required><input type="password" id="register-password" placeholder="Contraseña" required><button id="register-btn">Registrar</button><p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión</a></p></div></div></div>
+    <div id="options-modal" class="modal-overlay hidden"><div class="modal-content"><button class="close-btn">&times;</button><h2>Opciones</h2><div class="option-item"><label for="volume-master">Volumen General</label><input type="range" id="volume-master" min="0" max="100" value="80"></div><div class="option-item"><label for="volume-music">Música</label><input type="range" id="volume-music" min="0" max="100" value="60"></div><div class="option-item"><label for="volume-sfx">Efectos de Sonido</label><input type="range" id="volume-sfx" min="0" max="100" value="90"></div><div class="admin-entry"><input type="password" id="admin-key-input" placeholder="Acceso de Administrador..."></div><div id="admin-panel" class="hidden"><div class="admin-warning"><h3>PROTOCOLO DE EMERGENCIA: CÓDIGO ROJO</h3><p>ADVERTENCIA: Las siguientes acciones son irreversibles y afectarán a todos los jugadores.</p></div><div class="admin-actions"><button id="delete-data-btn" class="admin-btn danger">Purgar Datos de Jugadores</button><button id="delete-accounts-btn" class="admin-btn extreme-danger">Eliminar Todas las Cuentas</button></div></div></div></div>
+    <div id="credits-modal" class="modal-overlay hidden"><div class="modal-content credits-content"><button class="close-btn">&times;</button><h2>Créditos</h2><p class="credits-main">Todo por</p><h3 class="credits-logo">DZM Studios</h3><p class="credits-joke">Este juego fue testeado exhaustivamente por nuestros gatos.<br>Si encuentras un bug, échales la culpa a ellos.</p></div></div>
+    <div id="leaderboard-modal" class="modal-overlay hidden"><div class="modal-content"><button class="close-btn">&times;</button><h2>Top Jugadores (Fortuna Total)</h2><div id="leaderboard-container"><p>Cargando clasificación...</p></div></div></div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+    <script src="menu.js"></script>
+</body>
+</html>

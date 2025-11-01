@@ -1,142 +1,71 @@
-/* --- CONFIGURACIÓN GLOBAL Y VARIABLES --- */
-:root {
-    --bg-dark: #2c3e50;
-    --bg-medium: #34495e;
-    --bg-light: #4a627a;
-    --text-color: #ecf0f1;
-    --accent-color: #3498db;
-    --accent-hover: #5dade2;
-    --accent-active: #2980b9;
-    --money-color: #f1c40f;
-    --success-color: #2ecc71;
-    --error-color: #e74c3c;
-    --font-primary: 'Poppins', sans-serif;
-    --font-mono: 'Roboto Mono', monospace;
-}
-* { box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
 body {
-    background-color: var(--bg-dark);
-    color: var(--text-color);
-    font-family: var(--font-primary);
-    margin: 0; font-size: 16px; overflow: hidden;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #181818;
+    color: #ffffff;
+    overflow: hidden;
 }
 
-/* --- ESTRUCTURA PRINCIPAL --- */
-#main-container {
-    width: 100%; height: 100vh; max-width: 900px;
-    margin: 0 auto; background-color: var(--bg-medium);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    display: flex; flex-direction: column; overflow: hidden;
-}
-#top-bar, #nav-bar {
-    background-color: var(--bg-dark); padding: 12px 15px;
-    display: flex; align-items: center; flex-shrink: 0;
-    flex-wrap: wrap; gap: 10px;
-}
-#top-bar { justify-content: space-between; font-size: 1em; }
-#money-display, #market-timer-display { color: var(--money-color); font-weight: 600; font-family: var(--font-mono); }
-#nav-bar { justify-content: center; gap: 20px; border-top: 2px solid var(--bg-light); }
-#screen-container { flex-grow: 1; padding: 15px; overflow-y: auto; }
-
-/* --- PANELES Y CONTENIDO --- */
-.screen h2 { text-align: center; margin-top: 0; }
-.panel {
-    background-color: var(--bg-dark); border-radius: 8px;
-    padding: 15px; margin-bottom: 20px;
-}
-.panel h3 { margin-top: 0; border-bottom: 1px solid var(--bg-light); padding-bottom: 10px; }
-.hidden { display: none !important; }
-
-/* --- BOTONES Y ELEMENTOS INTERACTIVOS --- */
-button {
-    background-color: var(--accent-color); color: white; border: none;
-    padding: 14px 20px; border-radius: 8px; cursor: pointer;
-    font-size: 1em; font-family: var(--font-primary);
-    transition: background-color 0.2s ease;
-}
-button:hover { background-color: var(--accent-hover); }
-#nav-bar button.active { background-color: var(--accent-active); }
-.upgrade-btn, .city-btn, .contract-btn { display: block; width: 100%; text-align: left; margin-bottom: 10px; }
-.upgrade-btn.disabled, .city-btn.disabled, .contract-btn.disabled { background-color: #7f8c8d; cursor: not-allowed; opacity: 0.6; }
-
-/* --- LISTAS Y ELEMENTOS ESPECÍFICOS --- */
-.resource-list .resource-line {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 5px; border-bottom: 1px solid var(--bg-medium);
-    flex-wrap: wrap; gap: 10px;
-}
-.resource-list .resource-line:last-child { border-bottom: none; }
-.resource-line span b { font-family: var(--font-mono); }
-#city-panels-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-#map-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-
-/* --- ESTILOS DE CONTRATOS --- */
-.contract { padding: 10px; border: 1px solid var(--bg-light); border-radius: 5px; margin-bottom: 15px; }
-.contract.completed { opacity: 0.5; background-color: #273a4e; }
-.contract-title { font-weight: 600; font-size: 1.1em; }
-.contract-reqs { font-size: 0.9em; margin: 10px 0; padding-left: 15px; list-style-type: square; }
-.req-met { color: var(--success-color); }
-.req-not-met { color: var(--error-color); }
-
-/* --- ESTILOS DE LEADERBOARD --- */
-#leaderboard-container { font-family: var(--font-mono); }
-.leaderboard-entry {
-    display: flex; justify-content: space-between; padding: 8px 5px;
-    border-bottom: 1px solid var(--bg-light);
-}
-.leaderboard-entry:last-child { border-bottom: none; }
-.leaderboard-rank { font-weight: 600; }
-.leaderboard-money { color: var(--money-color); font-weight: 600; }
-
-/* --- SISTEMA DE NOTIFICACIONES --- */
-#notification {
-    position: fixed; bottom: 80px; left: 10px; right: 10px;
-    transform: translateY(20px); padding: 15px 25px; border-radius: 8px;
-    color: white; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;
-    z-index: 100; text-align: center;
-}
-#notification.show { opacity: 1; transform: translateY(0); }
-#notification.success { background-color: var(--success-color); }
-#notification.error { background-color: var(--error-color); }
-
-/* --- ESTILOS DE LOGIN --- */
-#login-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(44, 62, 80, 0.9);
+.screen {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 200;
-}
-#login-box {
-    background-color: var(--bg-dark);
-    padding: 40px;
-    border-radius: 10px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    max-width: 500px;
-    margin: 20px;
-}
-#login-box h1 {
-    margin-top: 0;
-    color: var(--accent-color);
-}
-#google-login-btn {
-    background-color: #4285F4; /* Color de Google */
-    font-weight: 600;
-    margin-top: 20px;
-}
-#google-login-btn:hover {
-    background-color: #6a9eff;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    height: 100vh;
+    width: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    transition: opacity 1.5s ease-in-out;
 }
 
-/* --- ESTILOS RESPONSIVOS PARA MÓVIL --- */
+.hidden { opacity: 0; pointer-events: none; }
+.visible { opacity: 1; }
+
+/* --- PANTALLA 1: LOGO "DZM STUDIOS" --- */
+.logo {
+    font-size: 6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #dddddd;
+    animation: revealLogo 4s ease-out forwards;
+}
+@keyframes revealLogo {
+    0% { opacity: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); transform: scale(1.05); }
+    50% { opacity: 0.7; text-shadow: 0 0 5px rgba(255,255,255,0.4); }
+    100% { opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.6); transform: scale(1); }
+}
+
+/* --- PANTALLA 2: TECNOLOGÍAS --- */
+#tech-screen { background-color: #1a1a1a; }
+.tech-container { display: flex; flex-wrap: wrap; justify-content: center; font-size: 2.5rem; margin-top: 1rem; }
+@keyframes fadeInSlow { from { opacity: 0; } to { opacity: 1; } }
+.tech-text, .tech-item, .tech-separator { opacity: 0; animation: fadeInSlow 2s forwards; }
+.tech-text { animation-delay: 0.5s; font-size: 1.5rem; color: #cccccc; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+.html { animation-delay: 1.5s; color: #E44D26; text-shadow: 0 0 10px #E44D26; }
+.css { animation-delay: 2.0s; color: #264DE4; text-shadow: 0 0 10px #264DE4; }
+.js { animation-delay: 2.5s; color: #F0DB4F; text-shadow: 0 0 10px #F0DB4F; }
+.tech-separator { animation-duration: 1.5s; animation-delay: 3.0s; margin: 0 1rem; color: #555; font-weight: normal; }
+
+
+/* --- MEDIA QUERY PARA DISPOSITIVOS MÓVILES --- */
 @media (max-width: 768px) {
-    #main-container { border-radius: 0; }
-    #cities-container, #city-panels-container, #map-layout { grid-template-columns: 1fr; }
-    .resource-list .resource-line { flex-direction: column; align-items: flex-start; gap: 8px; }
-    .resource-line button { width: 100%; }
+    .logo {
+        font-size: 3.5rem;
+        letter-spacing: 1px;
+    }
+    .tech-text {
+        font-size: 1.2rem;
+    }
+    .tech-container {
+        font-size: 2rem;
+    }
+    .tech-separator {
+        margin: 0 0.5rem;
+    }
 }
